@@ -27,7 +27,7 @@ ROUTES_CSV         = "routes.csv"
 EXPORT_CSV         = "real_tariffs_export.csv"
 
 
-# ── Парсер: СДЭК ──────────────────────────────────────────────────────────────
+#  Парсер: СДЭК 
 
 def get_cdek_token():
     try:
@@ -87,7 +87,7 @@ def get_cdek_tariff(origin_code, dest_code, weight_kg, origin="", destination=""
         return None
 
 
-# ── Парсер: Возовоз ───────────────────────────────────────────────────────────
+# Парсер: Возовоз 
 
 def scrape_vozovoz_calculator(origin, destination, weight_kg):
     company_name = "Возовоз"
@@ -150,7 +150,7 @@ def scrape_vozovoz_calculator(origin, destination, weight_kg):
             browser.close()
 
 
-# ── Сборщик: запускается по кнопке из дашборда ───────────────────────────────
+# Сборщик: запускается по кнопке из дашборда 
 
 def run_parser(log_placeholder):
     if not os.path.exists(ROUTES_CSV):
@@ -207,7 +207,7 @@ def run_parser(log_placeholder):
         log("Данных нет — CSV не обновлён.")
 
 
-# ── Дашборд ───────────────────────────────────────────────────────────────────
+# Дашборд 
 
 st.set_page_config(layout="wide", page_title="EcoLogistic Analytics")
 st.title("📊 EcoLogistic: Анализ логистического рынка")
@@ -226,8 +226,7 @@ def load_data():
     return df
 
 
-# ── Сайдбар ───────────────────────────────────────────────────────────────────
-
+# Сайдбар 
 st.sidebar.header("Сбор данных")
 
 if st.sidebar.button("🔄 Обновить данные", use_container_width=True):
@@ -264,7 +263,7 @@ filtered = df[
     df["weight_kg"].between(selected_weight[0], selected_weight[1])
 ]
 
-# ── Вкладки ───────────────────────────────────────────────────────────────────
+#Вкладки 
 
 tab1, tab2, tab3 = st.tabs(["Сводные метрики", "Сравнение конкурентов", "Сырые данные"])
 
