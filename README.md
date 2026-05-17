@@ -27,13 +27,11 @@ def get_token():
     token = os.getenv("VK_SERVICE_TOKEN", "").strip()
     if token:
         return token
-
     print("Токен VK не найден.")
     print("Получить его можно здесь: https://vk.com/apps?act=manage")
     token = input("Введите сервисный ключ ВК: ").strip()
     if not token:
         raise SystemExit("Токен не введён, выход.")
-
     env_path = ".env"
     if not os.path.exists(env_path):
         open(env_path, "w").close()
@@ -48,10 +46,8 @@ def load_queries():
         with open(QUERIES_FILE, "w", encoding="utf-8") as f:
             f.write("\n".join(DEFAULT_QUERIES))
         print(f"✓ {QUERIES_FILE} создан\n")
-
     with open(QUERIES_FILE, encoding="utf-8") as f:
         queries = [line.strip() for line in f if line.strip()]
-
     print(f"Загружено запросов из {QUERIES_FILE}: {len(queries)}")
     return queries
 
@@ -65,7 +61,6 @@ def vk_get(method, params, token, retries=3):
                 timeout=10,
             )
             data = r.json()
-
             if "error" in data:
                 code = data["error"]["error_code"]
                 msg  = data["error"]["error_msg"]
@@ -76,13 +71,10 @@ def vk_get(method, params, token, retries=3):
                     continue
                 tqdm.write(f"  VK error {code}: {msg}")
                 return None
-
             return data["response"]
-
         except Exception as e:
             tqdm.write(f"  Request failed: {e}")
             time.sleep(1)
-
     return None
 
 
@@ -101,7 +93,6 @@ def search_groups(query, token):
 def get_group_details(group_ids, token):
     details = []
     batches = [group_ids[i:i + 500] for i in range(0, len(group_ids), 500)]
-
     for batch in tqdm(batches, desc="Загрузка деталей", unit="батч"):
         time.sleep(0.5)
         result = vk_get(
@@ -116,7 +107,6 @@ def get_group_details(group_ids, token):
             continue
         groups = result if isinstance(result, list) else result.get("groups", [])
         details.extend(groups)
-
     return details
 
 
@@ -131,28 +121,22 @@ def extract_contact(contacts, field):
 def run_parser():
     token   = get_token()
     queries = load_queries()
-
     all_ids = set()
     for query in tqdm(queries, desc="Поиск групп", unit="запрос"):
         ids = search_groups(query, token)
         all_ids.update(ids)
         tqdm.write(f"  «{query}»: {len(ids)} групп")
-
     print(f"\nУникальных групп: {len(all_ids)}")
-
     groups = get_group_details(list(all_ids), token)
     print(f"Деталей получено: {len(groups)}")
-
     leads = []
     for g in groups:
         members = g.get("members_count", 0)
         if members < 500 or members > 500_000:
             continue
-
         city        = (g.get("city") or {}).get("title", "")
         contacts    = g.get("contacts") or []
         screen_name = g.get("screen_name") or f"club{g.get('id')}"
-
         leads.append({
             "group_id":      g.get("id"),
             "name":          g.get("name", ""),
@@ -162,13 +146,10 @@ def run_parser():
             "email":         extract_contact(contacts, "email"),
             "vk_url":        f"https://vk.com/{screen_name}",
         })
-
     print(f"Лидов после фильтрации: {len(leads)}")
-
     if not leads:
         print("Нет лидов для сохранения.")
         return
-
     df = pd.DataFrame(leads)
     df.drop_duplicates(subset="group_id", inplace=True)
     df.sort_values("members_count", ascending=False, inplace=True)
@@ -180,7 +161,6 @@ def run_parser():
 def run_dashboard():
     st.set_page_config(layout="wide", page_title="EcoLogistic: Анализ Аудитории")
     st.title("🌱 EcoLogistic: Аудитория фермеров и крафта")
-
     @st.cache_data
     def load_data():
         try:
@@ -189,50 +169,39 @@ def run_dashboard():
             return df
         except FileNotFoundError:
             return None
-
     df_raw = load_data()
-
     if df_raw is None:
         st.error(
             f"Файл {OUTPUT_CSV} не найден. "
             "Сначала запустите парсер: python app.py --parse"
         )
         st.stop()
-
     # ── Сайдбар ─────────────────────────────────────────────────────────────
     with st.sidebar:
         st.header("Фильтры")
         cities = sorted(df_raw["city"].unique().tolist())
         selected_cities = st.multiselect("Выбор города", cities, default=[])
-
         min_m = int(df_raw["members_count"].min())
         max_m = int(df_raw["members_count"].max())
         members_range = st.slider(
             "Количество подписчиков", min_m, max_m, (min_m, max_m)
         )
-
         only_contacts = st.checkbox("Только с телефоном / email")
-
     # ── Фильтрация ──────────────────────────────────────────────────────────
     df = df_raw.copy()
-
     if selected_cities:
         df = df[df["city"].isin(selected_cities)]
-
     df = df[df["members_count"].between(*members_range)]
-
     if only_contacts:
         has = (
             (df["phone"].notna() & (df["phone"] != ""))
             | (df["email"].notna() & (df["email"] != ""))
         )
         df = df[has]
-
     # ── Вкладки ─────────────────────────────────────────────────────────────
     tab1, tab2, tab3 = st.tabs(
         ["📊 Сводка", "🗺 География спроса", "📋 База лидов"]
     )
-
     with tab1:
         has_contact = (
             (df["phone"].notna() & (df["phone"] != ""))
@@ -242,9 +211,7 @@ def run_dashboard():
         col1.metric("Найдено сообществ",     f"{len(df):,}")
         col2.metric("Общий охват аудитории", f"{df['members_count'].sum():,}")
         col3.metric("Лидов с контактами",    f"{has_contact.sum():,}")
-
         st.divider()
-
         top_cities = (
             df.groupby("city")
             .size()
@@ -265,7 +232,6 @@ def run_dashboard():
             coloraxis_showscale=False,
         )
         st.plotly_chart(fig_bar, use_container_width=True)
-
     with tab2:
         if df.empty:
             st.info("Нет данных для отображения — попробуйте изменить фильтры.")
@@ -282,7 +248,6 @@ def run_dashboard():
             fig_tree.update_traces(textinfo="label+value")
             fig_tree.update_layout(coloraxis_showscale=False)
             st.plotly_chart(fig_tree, use_container_width=True)
-
     with tab3:
         display_df = df.drop(columns=["group_id"], errors="ignore")
         st.dataframe(
