@@ -1,6 +1,6 @@
 # EcoLogistic — Ветка Алимурадова Джамала
 
-## Моя часть проекта
+
 
 Я отвечаю за два раздела:
 1. **Анализ целевой аудитории** — кто будет пользоваться платформой, портреты ЦА
@@ -10,17 +10,17 @@
 
 ```
 jamal/
-├── README.md                        ← этот файл
-├── parser.py                        ← статический парсер hh.ru (ООП)
+├── README.md                      
+├── parser.py                      
 ├── data/
-│   └── hh_vacancies_sample.csv      ← данные, собранные парсером
+│   └── hh_vacancies_sample.csv      
 ├── target_audience/
-│   └── target_audience_analysis.ipynb  ← анализ ЦА (источники 1, 2, 3)
+│   └── target_audience_analysis.ipynb  
 └── marketing/
-    └── marketing_campaign.ipynb     ← маркетинговая кампания
+    └── marketing_campaign.ipynb     
 ```
 
-## Источники данных
+
 
 | # | Источник | Тип | Что брали |
 |---|----------|-----|-----------|
@@ -30,9 +30,9 @@ jamal/
 
 ## Применённые темы курса
 
-- ✅ **ООП** — класс `HHParser` в `parser.py`
+-  **ООП** — класс `HHParser` в `parser.py`
 
-## Как запустить
+
 
 ```bash
 pip install requests beautifulsoup4 pandas matplotlib
