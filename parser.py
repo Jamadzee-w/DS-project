@@ -1,8 +1,6 @@
 """
 Статический парсер hh.ru для сбора данных о вакансиях в сфере логистики.
 Используется для анализа рынка и целевой аудитории EcoLogistic.
-
-Автор: Алимурадов Джамал
 """
 
 import requests
@@ -38,7 +36,7 @@ class HHParser:
             "text": self.query,
             "page": page,
             "per_page": 20,
-            "area": 113,  # Россия
+            "area": 113,  
         }
         try:
             response = requests.get(
@@ -55,7 +53,7 @@ class HHParser:
         soup = BeautifulSoup(html, "html.parser")
         vacancies = []
 
-        # hh периодически меняет классы, ищем по data-атрибутам
+       
         cards = soup.find_all("div", attrs={"data-qa": "vacancy-serp__vacancy"})
 
         for card in cards:
@@ -87,7 +85,6 @@ class HHParser:
                     }
                 )
             except Exception as e:
-                # пропускаем карточку если что-то пошло не так
                 continue
 
         return vacancies
