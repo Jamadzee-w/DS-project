@@ -10,12 +10,14 @@
 ## Структура файлов
 
 ├── README.md
+
 ├── parser.py
+
 ├── data/
-│   ├── routes.csv
-│   └── real_tariffs_export.csv
+   ├── routes.csv
+   └── real_tariffs_export.csv
 ├── contractors/
-│   └── contractor_analysis.ipynb
+└── contractor_analysis.ipynb
 └── competitors/
     └── competitor_analysis.ipynb
     
