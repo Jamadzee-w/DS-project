@@ -26,8 +26,9 @@ vladimir/
 |    
     └── competitors/
 |
+|    
     └── competitor_analysis.ipynb
-|
+
 
     
 
