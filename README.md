@@ -22,6 +22,7 @@ vladimir/
 ├── contractors/                
   └── contractor_analysis.ipynb    
 └── competitors/
+
 └── competitor_analysis.ipynb
 
     
