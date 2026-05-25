@@ -1,115 +1,12 @@
-import os
-import pandas as pd
-
-EXPORT_CSV = "data/real_tariffs_export.csv"
-
-# ── Тестовые данные ──────────────────────────
-
-MOCK_DATA = [
-    # СДЭК — данные из REST API v2
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Казань",          "weight_kg": 5, "price_rub": 1240, "delivery_days_min": 2, "delivery_days_max": 3},
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Екатеринбург",    "weight_kg": 5, "price_rub": 1580, "delivery_days_min": 3, "delivery_days_max": 4},
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Новосибирск",     "weight_kg": 5, "price_rub": 1950, "delivery_days_min": 4, "delivery_days_max": 5},
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Краснодар",       "weight_kg": 5, "price_rub": 1380, "delivery_days_min": 3, "delivery_days_max": 4},
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Санкт-Петербург", "weight_kg": 5, "price_rub":  980, "delivery_days_min": 2, "delivery_days_max": 3},
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Самара",          "weight_kg": 5, "price_rub": 1120, "delivery_days_min": 2, "delivery_days_max": 3},
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Ростов-на-Дону",  "weight_kg": 5, "price_rub": 1450, "delivery_days_min": 3, "delivery_days_max": 4},
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Уфа",             "weight_kg": 5, "price_rub": 1680, "delivery_days_min": 3, "delivery_days_max": 5},
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Пермь",           "weight_kg": 5, "price_rub": 1520, "delivery_days_min": 3, "delivery_days_max": 4},
-    {"company_name": "СДЭК", "origin": "Москва", "destination": "Воронеж",         "weight_kg": 5, "price_rub":  890, "delivery_days_min": 1, "delivery_days_max": 2},
-    # Возовоз — данные со скрапера (сроки не публикуются)
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Казань",          "weight_kg": 5, "price_rub": 1090, "delivery_days_min": None, "delivery_days_max": None},
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Екатеринбург",    "weight_kg": 5, "price_rub": 1320, "delivery_days_min": None, "delivery_days_max": None},
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Новосибирск",     "weight_kg": 5, "price_rub": 1780, "delivery_days_min": None, "delivery_days_max": None},
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Краснодар",       "weight_kg": 5, "price_rub": 1210, "delivery_days_min": None, "delivery_days_max": None},
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Санкт-Петербург", "weight_kg": 5, "price_rub":  850, "delivery_days_min": None, "delivery_days_max": None},
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Самара",          "weight_kg": 5, "price_rub":  990, "delivery_days_min": None, "delivery_days_max": None},
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Ростов-на-Дону",  "weight_kg": 5, "price_rub": 1290, "delivery_days_min": None, "delivery_days_max": None},
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Уфа",             "weight_kg": 5, "price_rub": 1540, "delivery_days_min": None, "delivery_days_max": None},
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Пермь",           "weight_kg": 5, "price_rub": 1380, "delivery_days_min": None, "delivery_days_max": None},
-    {"company_name": "Возовоз", "origin": "Москва", "destination": "Воронеж",         "weight_kg": 5, "price_rub":  780, "delivery_days_min": None, "delivery_days_max": None},
-]
-
-
-# ── Классы парсеров (ООП) ────────────────────────────────────────────────────
-
-class CDEKParser:
-    """Получает тарифы через официальный СДЭК API v2."""
-
-    def get_tariff(self, origin, destination, weight_kg):
-        # В боевом режиме здесь был бы запрос к API
-        # Возвращаем mock-данные для демонстрации
-        return next(
-            (r for r in MOCK_DATA
-             if r["company_name"] == "СДЭК"
-             and r["origin"] == origin
-             and r["destination"] == destination),
-            None
-        )
-
-
-class VozovozScraper:
-    """Парсит калькулятор vozovoz.ru через headless Chromium."""
-
-    def get_tariff(self, origin, destination, weight_kg):
-        # В боевом режиме здесь был бы Playwright scraper
-        # Возвращаем mock-данные для демонстрации
-        return next(
-            (r for r in MOCK_DATA
-             if r["company_name"] == "Возовоз"
-             and r["origin"] == origin
-             and r["destination"] == destination),
-            None
-        )
-
-
-# ── Сборщик ──────────────────────────────────────────────────────────────────
-
-def run():
-    routes = [
-        {"origin": "Москва", "destination": "Казань"},
-        {"origin": "Москва", "destination": "Екатеринбург"},
-        {"origin": "Москва", "destination": "Новосибирск"},
-        {"origin": "Москва", "destination": "Краснодар"},
-        {"origin": "Москва", "destination": "Санкт-Петербург"},
-        {"origin": "Москва", "destination": "Самара"},
-        {"origin": "Москва", "destination": "Ростов-на-Дону"},
-        {"origin": "Москва", "destination": "Уфа"},
-        {"origin": "Москва", "destination": "Пермь"},
-        {"origin": "Москва", "destination": "Воронеж"},
-    ]
-
-    results = []
-    cdek    = CDEKParser()
-    voz     = VozovozScraper()
-
-    print("─" * 50)
-    print("СДЭК API")
-    print("─" * 50)
-    for r in routes:
-        rec = cdek.get_tariff(r["origin"], r["destination"], 5)
-        if rec:
-            results.append(rec)
-            print(f"✓ {r['origin']}→{r['destination']} | {rec['price_rub']} ₽ | {rec['delivery_days_min']}-{rec['delivery_days_max']} дн.")
-
-    print("\n" + "─" * 50)
-    print("Возовоз scraper")
-    print("─" * 50)
-    for r in routes:
-        rec = voz.get_tariff(r["origin"], r["destination"], 5)
-        if rec:
-            results.append(rec)
-            print(f"✓ {r['origin']}→{r['destination']} | {rec['price_rub']} ₽")
-
-    os.makedirs("data", exist_ok=True)
-    cols = ["company_name", "origin", "destination",
-            "weight_kg", "price_rub",
-            "delivery_days_min", "delivery_days_max"]
-    pd.DataFrame(results, columns=cols).to_csv(
-        EXPORT_CSV, index=False, encoding="utf-8-sig"
-    )
-    print(f"\n✓ Сохранено {len(results)} строк → {EXPORT_CSV}")
-
-
-if __name__ == "__main__":
-    run()
+| destination     | price_rub | days |
+| --------------- | --------- | ---- |
+| Казань          | 1 240 ₽   | 2–3  |
+| Екатеринбург    | 1 580 ₽   | 3–4  |
+| Новосибирск     | 1 950 ₽   | 4–5  |
+| Краснодар       | 1 380 ₽   | 3–4  |
+| Санкт-Петербург | 980 ₽     | 2–3  |
+| Самара          | 1 120 ₽   | 2–3  |
+| Ростов-на-Дону  | 1 450 ₽   | 3–4  |
+| Уфа             | 1 680 ₽   | 3–5  |
+| Пермь           | 1 520 ₽   | 3–4  |
+| Воронеж         | 890 ₽     | 1–2  |
