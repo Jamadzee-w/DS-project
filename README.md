@@ -17,16 +17,16 @@ vladimir/
 ├── data/
 
 ├── routes.csv
-|   
+    |   
     └── real_tariffs_export.csv
 
 ├── contractors/
-|   
+    |   
     └── contractor_analysis.ipynb
-|    
+    |    
     └── competitors/
-|
-|    
+    |
+    |    
     └── competitor_analysis.ipynb
 
 
