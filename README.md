@@ -19,11 +19,11 @@ vladimir/
 ├── routes.csv    
 └── real_tariffs_export.csv
 
-├── contractors/           
-        
+├── contractors/                
   └── contractor_analysis.ipynb
-      └── competitors/
-          └── competitor_analysis.ipynb
+      
+└── competitors/
+        └── competitor_analysis.ipynb
 
     
 
