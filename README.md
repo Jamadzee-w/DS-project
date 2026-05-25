@@ -8,7 +8,6 @@
 ---
 
 ## Структура файлов
-# Структура файлов
 vladimir/
 ├── README.html   
 ├── parser.py
