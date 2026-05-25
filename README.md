@@ -11,13 +11,10 @@
 
 
 ├── app.py                          
-
 ├── parser.py                       
-
 ├── data/
 │   ├── routes.csv                  
 │   └── real_tariffs_export.csv     
-
 ├── competitors/
 │   └── competitor_analysis.ipynb  
 └── contractors/
