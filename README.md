@@ -18,10 +18,8 @@
 ├── routes.csv                  
   └── real_tariffs_export.csv     
 
-├── competitors/
-    └── competitor_analysis.ipynb  
-└── contractors/
-    └── contractor_analysis.ipynb  
+├── competitor_contractor/
+    └── competitor_contractor_analysis.ipynb
 
 
 
